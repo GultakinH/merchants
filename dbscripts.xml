@@ -1,0 +1,189 @@
+-- Create table
+create table MERCHANT_USERS
+(
+  mer_type     VARCHAR2(10),
+  username     VARCHAR2(20) not null,
+  fullname     VARCHAR2(150),
+  address      VARCHAR2(250),
+  phonenumber  VARCHAR2(20),
+  emailaddress VARCHAR2(50),
+  password     VARCHAR2(255)
+)
+tablespace UBSTBS
+  pctfree 10
+  initrans 1
+  maxtrans 255
+  storage
+  (
+    initial 64K
+    next 1M
+    minextents 1
+    maxextents unlimited
+  );
+-- Create/Recreate primary, unique and foreign key constraints 
+alter table MERCHANT_USERS
+  add primary key (USERNAME)
+  using index 
+  tablespace UBSTBS
+  pctfree 10
+  initrans 2
+  maxtrans 255
+  storage
+  (
+    initial 64K
+    next 1M
+    minextents 1
+    maxextents unlimited
+  );
+
+
+
+-- Create table
+create table MERCHANT_SESSIONS
+(
+  sessionid     VARCHAR2(64),
+  username      VARCHAR2(20),
+  source_system VARCHAR2(64),
+  status        VARCHAR2(1),
+  create_date   DATE default sysdate,
+  duration      NUMBER
+)
+tablespace UBSTBS
+  pctfree 10
+  initrans 1
+  maxtrans 255
+  storage
+  (
+    initial 64K
+    next 1M
+    minextents 1
+    maxextents unlimited
+  );
+-- Create/Recreate primary, unique and foreign key constraints 
+alter table MERCHANT_SESSIONS
+  add constraint FK_USERNAME foreign key (USERNAME)
+  references MERCHANT_USERS (USERNAME);
+
+
+------
+
+create sequence iba_app.seq_merchant_sessions start with 1;
+-----
+create or replace procedure iba_app.proc_insert_merchant_sessions (v_username in varchar2, 
+v_source_system in varchar2,v_status in varchar2,v_duration in number, session_id out number )
+as id number;
+BEGIN
+  INSERT INTO iba_app.merchant_sessions VALUES (iba_app.seq_merchant_sessions.nextval,v_username,v_source_system,v_status,sysdate,v_duration)
+  returning sessionid into session_id;
+  END;
+  
+  ----------
+  
+  
+  
+  
+  -- Create table
+create table MERCHANT_CAMPAIGN
+(
+  username   VARCHAR2(20),
+  startdate  DATE,
+  enddate    DATE,
+  percentage NUMBER
+)
+tablespace UBSTBS
+  pctfree 10
+  initrans 1
+  maxtrans 255
+  storage
+  (
+    initial 64K
+    next 1M
+    minextents 1
+    maxextents unlimited
+  );
+-- Create/Recreate primary, unique and foreign key constraints 
+alter table MERCHANT_CAMPAIGN
+  add constraint FK_CAMPAIGNUSERNAME foreign key (USERNAME)
+  references MERCHANT_USERS (USERNAME);
+
+
+-- Create table
+create table MERCHANT_ALLPRODUCTS
+(
+  product_id     NUMBER not null,
+  category       VARCHAR2(20),
+  name           VARCHAR2(50),
+  description    VARCHAR2(250),
+  unitprice      NUMBER(10,2),
+  inventory      NUMBER(3),
+  paymentoptions VARCHAR2(20),
+  delivery       VARCHAR2(50)
+)
+tablespace UBSTBS
+  pctfree 10
+  initrans 1
+  maxtrans 255
+  storage
+  (
+    initial 64K
+    next 1M
+    minextents 1
+    maxextents unlimited
+  );
+-- Create/Recreate primary, unique and foreign key constraints 
+alter table MERCHANT_ALLPRODUCTS
+  add primary key (PRODUCT_ID)
+  using index 
+  tablespace UBSTBS
+  pctfree 10
+  initrans 2
+  maxtrans 255
+  storage
+  (
+    initial 64K
+    next 1M
+    minextents 1
+    maxextents unlimited
+  );
+========
+-- Create table
+create table MERCHANT_USERPRODUTS
+(
+  id         NUMBER not null,
+  username   VARCHAR2(20),
+  product_id NUMBER
+)
+tablespace UBSTBS
+  pctfree 10
+  initrans 1
+  maxtrans 255
+  storage
+  (
+    initial 64K
+    next 1M
+    minextents 1
+    maxextents unlimited
+  );
+-- Create/Recreate primary, unique and foreign key constraints 
+alter table MERCHANT_USERPRODUTS
+  add primary key (ID)
+  using index 
+  tablespace UBSTBS
+  pctfree 10
+  initrans 2
+  maxtrans 255
+  storage
+  (
+    initial 64K
+    next 1M
+    minextents 1
+    maxextents unlimited
+  );
+alter table MERCHANT_USERPRODUTS
+  add constraint FK_PRODUCT foreign key (PRODUCT_ID)
+  references MERCHANT_ALLPRODUCTS (PRODUCT_ID);
+alter table MERCHANT_USERPRODUTS
+  add constraint FK_PRODUCTUSERNAME foreign key (USERNAME)
+  references MERCHANT_USERS (USERNAME);
+
+========
